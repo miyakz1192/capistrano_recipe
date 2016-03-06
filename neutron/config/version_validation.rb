@@ -1,13 +1,18 @@
-def def_method(name)
-  return if methods.detect{|m| m == name}
-  puts "define #{name}"
-  define_method name do 
-    puts "#{name} called"
-    roles(name)
+
+module VersionValidationPrivate
+  def def_method(name)
+    return if methods.detect{|m| m == name}
+    puts "define #{name}"
+    define_method name do 
+      puts "#{name} called"
+      roles(name)
+    end
   end
 end
 
 def validate_version(&block)
+  include VersionValidationPrivate
+
   logger = Logger.new("logs.txt")
 
   roles(:all).each do |node|
