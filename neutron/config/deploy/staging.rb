@@ -13,6 +13,8 @@
 role :neutron,  %w{}
 role :neutron1,  %w{}
 role :neutron2,  %w{}
+role :keystones,  %w{}
+role :keystone1,  %w{}
 
 # server-based syntax
 # ======================
@@ -25,6 +27,7 @@ role :neutron2,  %w{}
 
 server "192.168.122.84", user: "miyakz", password: "m", roles: %w{neutrons neutron1}
 server "192.168.122.172", user: "miyakz", password: "miyakz", roles: %w{neutrons neutron2}
+server "192.168.122.232", user: "miyakz", password: "miyakz", roles: %w{keystones keystone1}
 
 # Configuration
 # =============
