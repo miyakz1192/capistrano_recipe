@@ -1,4 +1,5 @@
 require "logger"
+require_relative "error"
 
 logger.info "monkey patch check"
 
@@ -20,19 +21,14 @@ end
 logger.info "monkey patch check done"
 
 class Array
-  def depends_on(nodes, condition = {})
+  def depends_on(nodes, expect)
     nodes = [nodes] unless nodes.is_a?(Array)
+    nodes.current_ver(expect)
+  end
 
-    #TODO: condition variation 
-    nodes.each do |node|
-      if condition[:later_ver]
-        expect = condition[:later_ver] 
-        node_ver = node.version
-        unless expect <= node_ver
-          raise VersionCheckErrorLater.new(self, nodes, 
-                                           expect, node_ver)
-        end
-      end
+  def current_ver(expect)
+    self.each do |node|
+      node.current_ver(expect)
     end
   end
 end
@@ -44,5 +40,31 @@ class Capistrano::Configuration::Server
       res = capture "cat /home/miyakz/version"
     end
     res
+  end
+
+  def current_ver(expect)
+    node_ver = version
+
+    if expect[:just_ver]
+      unless expect[:just_ver] == node_ver
+        expect = expect[:just_ver]
+        raise VersionCheckErrorJust.new(self, [], 
+                                        expect, node_ver)
+      end
+    elsif expect[:later_ver]
+      unless expect[:later_ver] <= node_ver
+        expect = expect[:later_ver]
+        raise VersionCheckErrorLater.new(self, [],
+                                         expect, node_ver)
+      end
+    elsif expect[:previous_ver]
+      unless expect[:previous_ver] > node_ver
+        expect = expect[:previous_ver]
+        raise VersionCheckErrorPrevious.new(self, [],
+                                            expect, node_ver)
+      end
+    else
+      raise "unknown error"
+    end
   end
 end
